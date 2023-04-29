@@ -1,6 +1,6 @@
-use std::{env::args, process::exit, fs::File, io::Write};
+use std::{env::args, fs::File, io::Write, process::exit};
 
-static FILE_NAME: &str = "test";
+static FILE_NAME: &str = "test3";
 
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = args().collect();
@@ -11,13 +11,22 @@ fn main() -> std::io::Result<()> {
     }
 
     let mut file = File::create(FILE_NAME).expect("file not found");
-    file.write_all(b"hoge")?;
 
-    // printf(".intel_syntax noprefix\n");
-    // printf(".global main\n");
-    // printf("main:\n");
-    // printf("  mov rax, %d\n", atoi(argv[1]));
-    // printf("  ret\n");
+    let content_array = [
+        ".intel_syntax noprefix\n",
+        "global main\n",
+        "main:\n",
+        &format!("  move rax {}\n", args[1].parse().unwrap_or(0)),
+        "  ret\n",
+    ]
+    .concat();
+
+    let content = content_array.as_bytes();
+    file.write_all(content)?;
 
     exit(0);
 }
+
+// pub fn atoi(hoge: String) -> &str{
+//     hoge.
+// }
