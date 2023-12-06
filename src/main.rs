@@ -27,6 +27,22 @@ fn main() -> std::io::Result<()> {
     exit(0);
 }
 
-// pub fn atoi(hoge: String) -> &str{
-//     hoge.
-// }
+#[cfg(test)]
+mod tests {
+    use std::process::Command;
+
+    #[test]
+    fn it_works() {
+        let output = Command::new("dir")
+            .output()
+            .expect("Failed to execute command");
+
+        if output.status.success() {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            println!("Command output:\n{}", stdout);
+        } else {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            eprintln!("Command failed with error:\n{}", stderr);
+        }
+    }
+}
