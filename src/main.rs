@@ -1,8 +1,11 @@
-use std::{env::args, fs::File, io::Write, process::exit};
+use std::{env::args, fs::File, io::Write, process::exit, vec};
 
 static FILE_NAME: &str = "tmp.s";
 
-fn main() -> std::io::Result<()> {
+mod parser;
+mod tokenizer;
+
+fn main() -> anyhow::Result<()> {
     let args: Vec<String> = args().collect();
 
     if args.len() != 2 {
@@ -21,6 +24,15 @@ fn main() -> std::io::Result<()> {
     ]
     .concat();
 
+    let mut assembly_line: Vec<String> = vec![];
+
+    for s in content_array.chars() {
+        if s == '+' {
+            assembly_line.push(format!("  add rax, {}\n", s));
+            println!("test");
+        }
+    }
+
     let content = content_array.as_bytes();
     file.write_all(content)?;
 
@@ -28,13 +40,14 @@ fn main() -> std::io::Result<()> {
 }
 
 mod cmd_utils {
+    use anyhow::*;
     use std::process::Command;
 
-    pub fn run_cmd(command: &str, args: &[&str]) -> Result<(), String> {
+    pub fn run_cmd(command: &str, args: &[&str]) -> anyhow::Result<()> {
         let output = Command::new(command)
             .args(args)
             .output()
-            .map_err(|e| format!("Failed to execute command: {}", e))?;
+            .with_context(|| "output error")?;
 
         let print_content = String::from_utf8_lossy(match output.status.success() {
             true => &output.stdout,
@@ -48,15 +61,19 @@ mod cmd_utils {
         Ok(())
     }
 
-    pub fn run_cmd_status(command: &str, args: &[&str]) -> Result<usize, String> {
+    pub fn run_cmd_status(command: &str, args: &[&str]) -> anyhow::Result<usize> {
         let output = Command::new(command)
             .args(args)
             .output()
-            .map_err(|e| format!("Failed to execute command: {}", e))?;
+            .with_context(|| "output error")?;
 
         let status_string = format!("{}", output.status);
         let split_status_string = status_string.split(' ').collect::<Vec<&str>>();
-        let status = split_status_string.last().unwrap().parse::<usize>().unwrap();
+        let status = split_status_string
+            .last()
+            .unwrap()
+            .parse::<usize>()
+            .unwrap();
 
         Ok(status)
     }
@@ -81,19 +98,27 @@ mod cmd_utils {
 
 #[cfg(test)]
 mod tests {
-    use std::{process::Command, io::{self, Write}};
+    use crate::parser::Parser;
+    use std::{
+        io::{self, Write},
+        process::Command,
+    };
+
     use super::*;
+    use anyhow::*;
 
     #[test]
-    fn status_test_1() {
-        cmd_utils::run_cmd("cargo", &["run", "--", "123"]).unwrap();
-        cmd_utils::run_cmd("cc", &["-o", "tmp", "tmp.s"]).unwrap();
-        cmd_utils::run_cmd("cat", &["./tmp.s"]).unwrap();
+    fn status_test_1() -> anyhow::Result<()> {
+        cmd_utils::run_cmd("cargo", &["run", "--", "123"])?;
+        cmd_utils::run_cmd("cc", &["-o", "tmp", "tmp.s"])?;
+        cmd_utils::run_cmd("cat", &["./tmp.s"])?;
 
-        if let Ok(status) = cmd_utils::run_cmd_status("./tmp", &[""]) {
+        if let anyhow::Result::Ok(status) = cmd_utils::run_cmd_status("./tmp", &[""]) {
             println!("status: {}", status);
             assert_eq!(status, 123)
         }
+
+        Ok(())
     }
 
     #[test]
@@ -102,9 +127,21 @@ mod tests {
         cmd_utils::run_cmd("cc", &["-o", "tmp", "tmp.s"]).unwrap();
         cmd_utils::run_cmd("cat", &["./tmp.s"]).unwrap();
 
-        if let Ok(status) = cmd_utils::run_cmd_status("./tmp", &[""]) {
+        if let anyhow::Result::Ok(status) = cmd_utils::run_cmd_status("./tmp", &[""]) {
             println!("status: {}", status);
             assert_eq!(status, 43)
         }
+    }
+
+    #[test]
+    fn parser() {
+        let mut parser = Parser::new(r"a+1\n".to_owned());
+        parser.parse();
+    }
+
+    #[test]
+    fn parser2() {
+        let mut parser = Parser::new(r"あああ\n".to_owned());
+        parser.parse();
     }
 }
