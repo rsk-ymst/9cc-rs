@@ -1,15 +1,26 @@
 // Rustの列挙子は変数を紐づけることが出来るので、そもそも構造体にする必要がないのでは。
 #[derive(Debug)]
-enum Token {
+pub enum Token {
+    Add,                // +
+    Sub,                // -
+    Mul,                // *
+    Div,                // /
+    Lbr,                // (
+    Rbr,                // )
     RESERVED(Operator), // 記号
-    NUM(i32),           // 整数トークン
+    Num(i32),           // 整数トークン
     EOF,                // 入力末端
 }
 
 #[derive(Debug)]
-enum Operator {
-    Plus,
-    Minus,
+pub enum Operator {
+    Add,
+    Sub,
+    Mul,
+    Div,
+
+    Lbr, // (
+    Rbr, // )
 }
 
 // struct Token {
@@ -55,16 +66,16 @@ impl Tokenizer {
                     chars.next();
                 }
                 '+' => {
-                    self.tokens.push(Token::RESERVED(Operator::Plus));
+                    self.tokens.push(Token::Add);
                     chars.next();
                 }
                 '-' => {
-                    self.tokens.push(Token::RESERVED(Operator::Minus));
+                    self.tokens.push(Token::Sub);
                     chars.next();
                 }
                 '0'..='9' => {
                     let parsed_num = c.to_digit(10).unwrap() as i32;
-                    let new_token = Token::NUM(parsed_num);
+                    let new_token = Token::Num(parsed_num);
                     self.tokens.push(new_token);
                     chars.next();
                 }
@@ -87,7 +98,7 @@ impl Tokenizer {
             '-' => {}
             '0'..='9' => {
                 let parsed_num = c.to_digit(10).unwrap() as i32;
-                let new_token = Token::NUM(parsed_num);
+                let new_token = Token::Num(parsed_num);
                 self.tokens.push(new_token);
             }
             // '-' => {
