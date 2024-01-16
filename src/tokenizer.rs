@@ -39,7 +39,7 @@ pub enum Operator {
 //     }
 // }
 
-struct Tokenizer {
+pub struct Tokenizer {
     pub target: String,
     // pub head: Option<Box<Token>>,
     pub tokens: Vec<Token>,
@@ -79,9 +79,14 @@ impl Tokenizer {
                     self.tokens.push(new_token);
                     chars.next();
                 }
-                // '-' => {
-
-                // },
+                '(' => {
+                    self.tokens.push(Token::Lbr);
+                    chars.next();
+                }
+                ')' => {
+                    self.tokens.push(Token::Rbr);
+                    chars.next();
+                }
                 _ => {
                     chars.next();
                 }
