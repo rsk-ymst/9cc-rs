@@ -4,30 +4,21 @@ use crate::{tokenizer::{Operator, Token}, opx_node};
 use anyhow::{anyhow, Result};
 use thiserror::Error;
 
-pub struct Parser {
+pub struct Parser<I: Iterator> {
     // code: String,
     // tokens: Vec<Token>,
-    stream: Box<dyn Iterator<Item = Token>>,
+    stream: Peekable<I>,
     cursor: usize,
 }
 
-pub struct Parser2<T: Iterator<Item = Token>>
-{
-    // code: String,
-    // tokens: Vec<Token>,
-    stream: T,
-    cursor: usize,
-}
-
-impl From<Vec<Token>> for Parser {
+impl From<Vec<Token>> for Parser<IntoIter<Token>> {
     fn from(tokens: Vec<Token>) -> Self {
         Self {
-            stream: Box::new(tokens.into_iter().peekable()),
-            cursor: 0
+            stream: tokens.into_iter().peekable(),
+            cursor: 0,
         }
     }
 }
-
 #[derive(Debug)]
 struct Node {
     token: Token,
@@ -47,18 +38,19 @@ type OpxNode = Option<Box<Node>>;
 pub enum FormatError {
     #[error("Invalid header (expected {expected:?}, got {found:?})")]
     InvalidHeader { expected: String, found: String },
+
     #[error("Missing attribute: {0}")]
     MissingAttribute(String),
 }
 
-impl Parser {
-    pub fn new(tokens: Vec<Token>) -> Self {
-        let iterative = tokens.into_iter();
-        Self {
-            stream: Box::new(iterative),
-            cursor: 0,
-        }
-    }
+impl Parser<IntoIter<Token>> {
+    // pub fn new(tokens: Vec<Token>) -> Self {
+    //     let iterative = tokens.into_iter();
+    //     Self {
+    //         stream: iterative,
+    //         cursor: 0,
+    //     }
+    // }
 
     pub fn parse(&mut self) -> OpxNode {
         // let mut x = self.tokens.into_iter().peekable();
@@ -96,17 +88,21 @@ impl Parser {
 
     pub fn expr(&mut self) -> OpxNode {
         let mut node = self.mul();
-        println!("prim {:?}", node);
+        println!("expr {:?}", node);
 
 
-        while let Some(token) = self.consume_token() {
+        while let Some(token) = self.peek_token() {
+            println!("expr: {token:?}");
+
             match token {
                 Token::Add => {
                     println!("Add!");
+                    self.consume_token();
                     node = opx_node!(Token::Add, node, self.mul());
                 }
                 Token::Sub => {
                     println!("Sub!");
+                    self.consume_token();
                     node = opx_node!(Token::Sub, node, self.mul());
                 }
                 _ => {
@@ -115,19 +111,23 @@ impl Parser {
             }
         }
 
-        None
+        node
     }
 
-    pub fn mul(&mut self) -> OpxNode {
+    fn mul(&mut self) -> OpxNode {
         let mut node = self.primary();
         println!("mul {:?}", node);
 
-        while let Some(token) = self.consume_token() {
+        while let Some(token) = self.peek_token() {
+            println!("mul: {token:?}");
+
             match token {
                 Token::Mul => {
+                    self.consume_token();
                     node = opx_node!(Token::Mul, node, self.primary());
                 }
                 Token::Div => {
+                    self.consume_token();
                     node = opx_node!(Token::Div, node, self.primary());
                 }
                 _ => {
@@ -141,16 +141,21 @@ impl Parser {
         node
     }
 
-    pub fn primary(&mut self) -> OpxNode {
+    fn primary(&mut self) -> OpxNode {
         println!("primary!");
 
-        if let Some(token) = self.consume_token() {
-            println!("{token:?}");
+        if let Some(token) = self.peek_token() {
+            println!("prim: {token:?}");
             match token {
                 Token::Lbr => {
-                    return self.expr();
+                    self.consume_token();
+                    let node = self.expr();
+                    self.expect_token(Token::Rbr);
+
+                    return node;
                 }
                 _ => {
+                    let token = self.consume_token().unwrap();
                     return opx_node!(token, None, None);
                 }
             }
@@ -159,9 +164,25 @@ impl Parser {
         None
     }
 
-    pub fn consume_token(&mut self) -> Option<Token> {
+    fn peek_token(&mut self) -> Option<&Token> {
+        self.stream.peek()
+    }
+
+    fn consume_token(&mut self) -> Option<Token> {
         self.stream.next()
     }
+
+    fn expect_token(&mut self, token: Token) -> bool {
+        if let Some(x) = self.peek_token() {
+            if x == &token {
+                self.consume_token();
+                return true
+            }
+        }
+
+        false
+    }
+
 
     //pub fn peek_token(&self) -> Option<&Token> {
      //   let x = self.stream.peekable();
@@ -217,6 +238,6 @@ mod tests {
         let mut parser = Parser::from(tokens);
         let out = parser.expr();
 
-        println!("{:?}", out);
+        println!("{:#?}", out);
     }
 }

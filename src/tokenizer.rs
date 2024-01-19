@@ -1,5 +1,5 @@
 // Rustの列挙子は変数を紐づけることが出来るので、そもそも構造体にする必要がないのでは。
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Token {
     Add,                // +
     Sub,                // -
@@ -12,7 +12,7 @@ pub enum Token {
     EOF,                // 入力末端
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Operator {
     Add,
     Sub,
@@ -71,6 +71,14 @@ impl Tokenizer {
                 }
                 '-' => {
                     self.tokens.push(Token::Sub);
+                    chars.next();
+                }
+                '*' => {
+                    self.tokens.push(Token::Mul);
+                    chars.next();
+                }
+                '/' => {
+                    self.tokens.push(Token::Div);
                     chars.next();
                 }
                 '0'..='9' => {
