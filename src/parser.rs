@@ -19,11 +19,11 @@ impl From<Vec<Token>> for Parser<IntoIter<Token>> {
         }
     }
 }
-#[derive(Debug)]
-struct Node {
-    token: Token,
-    lhs: Option<Box<Node>>,
-    rhs: Option<Box<Node>>,
+#[derive(Debug, Clone)]
+pub struct Node {
+    pub token: Token,
+    pub lhs: Option<Box<Node>>,
+    pub rhs: Option<Box<Node>>,
 }
 
 impl Node {
@@ -32,7 +32,7 @@ impl Node {
     }
 }
 
-type OpxNode = Option<Box<Node>>;
+pub type OpxNode = Option<Box<Node>>;
 
 #[derive(Error, Debug)]
 pub enum FormatError {

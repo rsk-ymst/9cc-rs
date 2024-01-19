@@ -4,6 +4,7 @@ static FILE_NAME: &str = "tmp.s";
 
 mod parser;
 mod tokenizer;
+mod generator;
 
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = args().collect();
