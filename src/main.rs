@@ -5,6 +5,9 @@ static FILE_NAME: &str = "tmp.s";
 mod parser;
 mod tokenizer;
 mod generator;
+mod utils;
+mod file;
+mod cmd;
 
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = args().collect();
@@ -14,7 +17,7 @@ fn main() -> anyhow::Result<()> {
         exit(1);
     }
 
-    let mut file = File::create(FILE_NAME).expect("file not found");
+    let mut file: File = File::create(FILE_NAME).expect("file not found");
 
     let content_array = [
         ".intel_syntax noprefix\n",
@@ -35,6 +38,7 @@ fn main() -> anyhow::Result<()> {
     }
 
     let content = content_array.as_bytes();
+
     file.write_all(content)?;
 
     exit(0);
@@ -78,6 +82,8 @@ mod cmd_utils {
 
         Ok(status)
     }
+
+
 
     // pub fn run_cmd_with_stdout(command: &str, args: &[&str]) -> std::io::Result<()> {
     //     let output = Command::new(command)

@@ -1,21 +1,30 @@
 use std::vec;
 
 
-use crate::parser::{OpxNode, Node};
-use crate::tokenizer::Token;
+use crate::parser::{Node, OpxNode, Parser};
+use crate::tokenizer::{Token, Tokenizer};
+use crate::utils;
 
 
 pub struct AsmGenerator {
-    node: OpxNode,
+    // node: OpxNode,
     asm_line: Vec<String>
 }
 
 impl AsmGenerator {
-    fn gen(&mut self, node: Option<Box<Node>>) -> Vec<String> {
+    fn new() -> Self {
+        Self {
+            asm_line: vec![
+                ".intel_syntax noprefix".into(),
+                ".globl main".into(),
+                "main:".into(),
+            ]
+        }
+    }
 
+    fn gen(mut self, node: Option<Box<Node>>) -> Vec<String> {
         self.gen_helper(node.as_ref());
-
-        todo!()
+        utils::vec_plus_n(self.asm_line).unwrap()
     }
 
     fn gen_helper(&mut self, node: Option<&Box<Node>>) {
@@ -58,5 +67,31 @@ impl AsmGenerator {
 
         self.asm_line.push(format!("  push rax"));
         // printf("  push rax\n");
+    }
+}
+
+mod tests {
+    use crate::{cmd, file, generator::AsmGenerator, parser::Parser, tokenizer::Tokenizer};
+
+    #[test]
+    pub fn tokenize_then_parse_then_gen() {
+        let input = "3 + 4 * (2 - 1)";
+        let tokenizer = Tokenizer::new(input.to_owned());
+
+        let tokens = tokenizer.tokenize();
+        println!("{tokens:?}");
+
+        let mut parser = Parser::from(tokens);
+        let head = parser.expr();
+
+        let mut generator = AsmGenerator::new();
+        let x = generator.gen(head);
+
+        println!("{:#?}", x);
+
+        file::write_vec_in_file("tmp.s", x);
+        let status = cmd::run_assembly("tmp.s");
+
+        println!("{:#?}", status);
     }
 }
