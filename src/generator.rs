@@ -24,6 +24,11 @@ impl AsmGenerator {
 
     fn gen(mut self, node: Option<Box<Node>>) -> Vec<String> {
         self.gen_helper(node.as_ref());
+
+        // 最後のスタックの値を取り出しプログラムを終了
+        self.asm_line.push("  pop rax".to_owned());
+        self.asm_line.push("  ret".to_owned());
+
         utils::vec_plus_n(self.asm_line).unwrap()
     }
 
@@ -41,8 +46,8 @@ impl AsmGenerator {
         self.gen_helper(node.unwrap().lhs.as_ref());
         self.gen_helper(node.unwrap().rhs.as_ref());
 
-        println!("{}", "hoge1");
-        println!("{}", "hoge2");
+        self.asm_line.push("  pop rdi".to_owned());
+        self.asm_line.push("  pop rax".to_owned());
 
         match node.unwrap().token {
             Token::Add => {
@@ -66,7 +71,6 @@ impl AsmGenerator {
         }
 
         self.asm_line.push(format!("  push rax"));
-        // printf("  push rax\n");
     }
 }
 
@@ -75,7 +79,7 @@ mod tests {
 
     #[test]
     pub fn tokenize_then_parse_then_gen() {
-        let input = "3 + 4 * (2 - 1)";
+        let input = "2*3+4*5";
         let tokenizer = Tokenizer::new(input.to_owned());
 
         let tokens = tokenizer.tokenize();
@@ -87,11 +91,11 @@ mod tests {
         let mut generator = AsmGenerator::new();
         let x = generator.gen(head);
 
-        println!("{:#?}", x);
+        println!("{x:#?}");
 
         file::write_vec_in_file("tmp.s", x);
         let status = cmd::run_assembly("tmp.s");
 
-        println!("{:#?}", status);
+        println!("{status:#?}");
     }
 }

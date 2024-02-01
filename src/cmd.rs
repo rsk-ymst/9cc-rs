@@ -27,6 +27,9 @@ pub fn run_cmd_status(command: &str, args: &[&str]) -> anyhow::Result<usize> {
 
     let status_string = format!("{}", output.status);
     let split_status_string = status_string.split(' ').collect::<Vec<&str>>();
+
+    println!("status: {split_status_string:#?}");
+
     let status = split_status_string
         .last()
         .unwrap()

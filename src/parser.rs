@@ -229,7 +229,7 @@ mod tests {
 
     #[test]
     fn tokenize_and_parse() {
-        let input = "3 + 4 * (2 - 1)";
+        let input = "2*3+4*5";
         let tokenizer = Tokenizer::new(input.to_owned());
 
         let tokens = tokenizer.tokenize();
