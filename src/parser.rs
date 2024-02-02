@@ -5,8 +5,6 @@ use anyhow::{anyhow, Result};
 use thiserror::Error;
 
 pub struct Parser<I: Iterator> {
-    // code: String,
-    // tokens: Vec<Token>,
     stream: Peekable<I>,
     cursor: usize,
 }
@@ -44,46 +42,9 @@ pub enum FormatError {
 }
 
 impl Parser<IntoIter<Token>> {
-    // pub fn new(tokens: Vec<Token>) -> Self {
-    //     let iterative = tokens.into_iter();
-    //     Self {
-    //         stream: iterative,
-    //         cursor: 0,
-    //     }
-    // }
 
     pub fn parse(&mut self) -> OpxNode {
-        // let mut x = self.tokens.into_iter().peekable();
-
-        // let x = self.stream.next().unwrap();
-        // let node = self.mul();
-
         self.expr()
-
-        // while let Some(x) = x.next() {
-        //     match x {
-        //         Token::RESERVED(Operator::Lbr) => {
-        //             self.expr();
-        //         },
-        //         _ => return
-        //     }
-        // }
-
-        // while self.cursor < self.code.len() {
-        //     let target_char = self.code.as_bytes().get(self.cursor);
-
-        //     if let Some(&target_char) = target_char {
-        //         let _x: u8 = 1;
-
-        //         if target_char.is_ascii() {
-        //             println!("{:?}", target_char as char);
-        //         } else {
-        //             return Err(anyhow!("Length must be less than 10"));
-        //         }
-
-        //         self.cursor += 1;
-        //     }
-        // }
     }
 
     pub fn expr(&mut self) -> OpxNode {
@@ -137,7 +98,6 @@ impl Parser<IntoIter<Token>> {
             }
         }
 
-        // Add a default return value here
         node
     }
 
@@ -182,22 +142,6 @@ impl Parser<IntoIter<Token>> {
 
         false
     }
-
-
-    //pub fn peek_token(&self) -> Option<&Token> {
-     //   let x = self.stream.peekable();
-     //   let x = self.stream.peekable();
-     //   x.peek;
-    //}
-
-    // pub fn atoi(&mut self) -> anyhow::Result<()> {
-    //     // loop {
-    //     //     self.co
-    //     // }
-    //     println!("{:?}", target_char as char);
-
-    //     Ok(())
-    // }
 }
 
 mod macros {
@@ -205,7 +149,6 @@ mod macros {
 
     #[macro_export]
     macro_rules! opx_node {
-        // use crate::tokenizer::Token;
         ($token:expr, $lhs:expr, $rhs:expr) => {
             Some(Box::new(Node::new($token, $lhs, $rhs)))
         }
@@ -214,17 +157,13 @@ mod macros {
 
 
 mod tests {
-    // use crate::tokenizer::Token;
 
     use crate::{tokenizer::*, opx_node};
     use crate::parser::{Node, Parser};
 
-    // use ::node;
-
     #[test]
     fn node_test() {
         let node = opx_node!(Token::Div, None, None);
-        // let x: Vec<_> = vec![];
     }
 
     #[test]

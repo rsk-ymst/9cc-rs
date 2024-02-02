@@ -106,17 +106,4 @@ mod tests {
         cat("tmp.s");
         run("./tmp").expect("run_err");
     }
-
-    #[test]
-    fn status_test_2() {
-        // cmd_utils::run_cmd("cargo", &["run", "--", "43"]).unwrap();
-        // cmd_utils::run_cmd("cc", &["-o", "tmp", "tmp.s"]).unwrap();
-        // cmd_utils::run_cmd("cat", &["./tmp.s"]).unwrap();
-
-        // if let anyhow::Result::Ok(status) = cmd_utils::run_cmd_status("./tmp", &[""]) {
-        //     println!("status: {}", status);
-        //     assert_eq!(status, 43)
-        // }
-    }
-
 }

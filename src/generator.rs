@@ -7,7 +7,6 @@ use crate::utils;
 
 
 pub struct AsmGenerator {
-    // node: OpxNode,
     asm_line: Vec<String>
 }
 
