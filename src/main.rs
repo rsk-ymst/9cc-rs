@@ -82,25 +82,6 @@ mod cmd_utils {
 
         Ok(status)
     }
-
-
-
-    // pub fn run_cmd_with_stdout(command: &str, args: &[&str]) -> std::io::Result<()> {
-    //     let output = Command::new(command)
-    //         .args(args)
-    //         .output()
-    //         .expect("Failed to execute command");
-
-    //     if !output.status.success() {
-    //         let stdout = String::from_utf8_lossy(&output.stdout);
-    //         println!("Command output:\n{}", stdout);
-    //     } else {
-    //         let stderr = String::from_utf8_lossy(&output.stderr);
-    //         eprintln!("Command failed with error:\n{}", stderr);
-    //     }
-
-    //     Ok(())
-    // }
 }
 
 #[cfg(test)]
@@ -139,16 +120,4 @@ mod tests {
             assert_eq!(status, 43)
         }
     }
-
-    // #[test]
-    // fn parser() {
-    //     let mut parser = Parser::new(r"a+1\n".to_owned());
-    //     parser.parse();
-    // }
-
-    // #[test]
-    // fn parser2() {
-    //     let mut parser = Parser::new(r"あああ\n".to_owned());
-    //     parser.parse();
-    // }
 }
