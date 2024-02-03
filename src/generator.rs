@@ -3,7 +3,7 @@ use std::vec;
 
 use crate::parser::{Node, OpxNode, Parser};
 use crate::tokenizer::{Token, Tokenizer};
-use crate::utils;
+use crate::{cmd, file, utils};
 
 
 pub struct AsmGenerator {
@@ -73,28 +73,39 @@ impl AsmGenerator {
     }
 }
 
+pub fn run_expr(expr: &str) -> anyhow::Result<usize> {
+    let tokenizer = Tokenizer::new(expr.to_owned());
+    let tokens = tokenizer.tokenize();
+
+    let mut parser = Parser::from(tokens);
+    let head = parser.expr();
+
+    let generator = AsmGenerator::new();
+    let asm_line = generator.gen(head);
+
+    let _ = file::write_vec_in_file("tmp.s", asm_line);
+    cmd::run_assembly("tmp.s")
+}
+
+pub fn assert_expr_eq(expr: &str, expect: usize) {
+    let status = run_expr(expr).unwrap();
+    assert_eq!(status, expect);
+}
+
 mod tests {
-    use crate::{cmd, file, generator::AsmGenerator, parser::Parser, tokenizer::Tokenizer};
+    use anyhow::{Ok, Result};
+
+    use crate::{cmd, file, generator::{run_expr, AsmGenerator}, parser::Parser, tokenizer::Tokenizer};
+
+    use super::assert_expr_eq;
 
     #[test]
-    pub fn tokenize_then_parse_then_gen() {
-        let input = "2*3+4*5";
-        let tokenizer = Tokenizer::new(input.to_owned());
-
-        let tokens = tokenizer.tokenize();
-        println!("{tokens:?}");
-
-        let mut parser = Parser::from(tokens);
-        let head = parser.expr();
-
-        let mut generator = AsmGenerator::new();
-        let x = generator.gen(head);
-
-        println!("{x:#?}");
-
-        file::write_vec_in_file("tmp.s", x);
-        let status = cmd::run_assembly("tmp.s");
-
-        println!("{status:#?}");
+    pub fn expr_test_set() {
+        // cargo test は並行実行されるので、エントリポイントを設け逐次実行させる
+        assert_expr_eq("2*3+4*5", 26);
+        assert_expr_eq("2*(3+4)*5", 70);
+        assert_expr_eq("5+6*7", 47);
+        assert_expr_eq("5*(9-6)", 15);
+        assert_expr_eq("(3+5)/2", 4);
     }
 }
