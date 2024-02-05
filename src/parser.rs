@@ -76,7 +76,7 @@ impl Parser<IntoIter<Token>> {
     }
 
     fn mul(&mut self) -> OpxNode {
-        let mut node = self.primary();
+        let mut node = self.unary();
         println!("mul {:?}", node);
 
         while let Some(token) = self.peek_token() {
@@ -85,11 +85,11 @@ impl Parser<IntoIter<Token>> {
             match token {
                 Token::Mul => {
                     self.consume_token();
-                    node = opx_node!(Token::Mul, node, self.primary());
+                    node = opx_node!(Token::Mul, node, self.unary());
                 }
                 Token::Div => {
                     self.consume_token();
-                    node = opx_node!(Token::Div, node, self.primary());
+                    node = opx_node!(Token::Div, node, self.unary());
                 }
                 _ => {
                     println!("{token:?}");
@@ -99,6 +99,27 @@ impl Parser<IntoIter<Token>> {
         }
 
         node
+    }
+
+    // unary = ("+" | "-")? unary | primary
+    fn unary(&mut self) -> OpxNode {
+        if let Some(token) = self.peek_token() {
+            match token {
+                Token::Add => {
+                    self.consume_token();
+                    return self.unary();
+                }
+                Token::Sub => {
+                    self.consume_token();
+                    return opx_node!(Token::Sub, opx_node!(Token::Num(0), None, None), self.unary());
+                }
+                _ => {
+                    return self.primary();
+                }
+            }
+        }
+
+        self.primary()
     }
 
     fn primary(&mut self) -> OpxNode {

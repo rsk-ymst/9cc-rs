@@ -76,9 +76,11 @@ impl AsmGenerator {
 pub fn run_expr(expr: &str) -> anyhow::Result<usize> {
     let tokenizer = Tokenizer::new(expr.to_owned());
     let tokens = tokenizer.tokenize();
+    println!("Final token: {tokens:?}");
 
     let mut parser = Parser::from(tokens);
     let head = parser.expr();
+    println!("Final: {head:?}");
 
     let generator = AsmGenerator::new();
     let asm_line = generator.gen(head);
@@ -107,5 +109,13 @@ mod tests {
         assert_expr_eq("5+6*7", 47);
         assert_expr_eq("5*(9-6)", 15);
         assert_expr_eq("(3+5)/2", 4);
+    }
+
+    #[test]
+    pub fn unary_test() {
+        // assert_expr_eq("-1+2", 1); // 0-1+2
+        assert_expr_eq("-10+20", 10);
+        assert_expr_eq("- -10", 10);
+        assert_expr_eq("- - +10", 10);
     }
 }

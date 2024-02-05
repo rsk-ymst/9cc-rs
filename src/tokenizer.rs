@@ -43,7 +43,6 @@ impl Tokenizer {
         println!("{chars:?}");
 
         while let Some(c) = chars.peek() {
-            // self.parse_char(c);
             println!("{}", c);
             match c {
                 ' ' => {
@@ -66,10 +65,22 @@ impl Tokenizer {
                     chars.next();
                 }
                 '0'..='9' => {
-                    let parsed_num = c.to_digit(10).unwrap() as i32;
+                    let mut num_buf = "".to_string();
+
+                    // 文字列を数値にする
+                    while let Some(i) = chars.peek() {
+                        if i.is_digit(10) {
+                            num_buf.push(*i);
+                            chars.next();
+                        } else {
+                            break;
+                        }
+                    }
+
+                    let parsed_num = num_buf.parse::<i32>().unwrap();
                     let new_token = Token::Num(parsed_num);
+
                     self.tokens.push(new_token);
-                    chars.next();
                 }
                 '(' => {
                     self.tokens.push(Token::Lbr);
