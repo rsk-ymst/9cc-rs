@@ -1,31 +1,21 @@
 // Rustの列挙子は変数を紐づけることが出来るので、そもそも構造体にする必要がないのでは。
 #[derive(Debug, PartialEq, Clone)]
 pub enum Token {
-    Add,                // +
-    Sub,                // -
-    Mul,                // *
-    Div,                // /
-    Lbr,                // (
-    Rbr,                // )
-    RESERVED(Operator), // 記号
-    Num(i32),           // 整数トークン
-    EOF,                // 入力末端
+    Add,      // +
+    Sub,      // -
+    Mul,      // *
+    Div,      // /
+    Lbr,      // (
+    Rbr,      // )
+    EQ,       // ==
+    NE,       // !=
+    LT,       // <
+    LE,       // <=
+    Num(i32), // 整数トークン
+    EOF,      // 入力末端
 }
-
-#[derive(Debug, PartialEq, Clone)]
-pub enum Operator {
-    Add,
-    Sub,
-    Mul,
-    Div,
-
-    Lbr, // (
-    Rbr, // )
-}
-
 pub struct Tokenizer {
     pub target: String,
-    // pub head: Option<Box<Token>>,
     pub tokens: Vec<Token>,
 }
 
@@ -43,7 +33,6 @@ impl Tokenizer {
         println!("{chars:?}");
 
         while let Some(c) = chars.peek() {
-            println!("{}", c);
             match c {
                 ' ' => {
                     chars.next();
@@ -90,6 +79,51 @@ impl Tokenizer {
                     self.tokens.push(Token::Rbr);
                     chars.next();
                 }
+                '=' => {
+                    chars.next();
+
+                    // == と続く場合……
+                    if let Some(i) = chars.peek() {
+                        match i {
+                            '=' => {
+                                self.tokens.push(Token::EQ);
+                                chars.next();
+                            }
+                            _ => {
+                                // TODO: 代入演算子の挿入
+                            }
+                        }
+                    }
+                }
+                '>' => {
+                    chars.next();
+
+                    if let Some(i) = chars.peek() {
+                        match i {
+                            '=' => {
+                                self.tokens.push(Token::LE);
+                                chars.next();
+                            }
+                            _ => {
+                                self.tokens.push(Token::LT);
+                            }
+                        }
+                    }
+                }
+                '!' => {
+                    chars.next();
+
+                    if let Some(i) = chars.peek() {
+                        match i {
+                            '=' => {
+                                self.tokens.push(Token::NE);
+                                chars.next();
+                            }
+                            _ => ()
+                        }
+                    }
+                }
+
                 _ => {
                     chars.next();
                 }
@@ -115,7 +149,9 @@ impl Tokenizer {
 }
 
 mod tests {
-    use crate::tokenizer::{self, Tokenizer};
+    use std::vec;
+
+    use crate::tokenizer::{self, Token, Tokenizer};
 
     #[test]
     fn test() {
@@ -127,7 +163,46 @@ mod tests {
     }
 
     #[test]
-    fn test2() {
-        println!("xxxx");
+    fn test_EQ() {
+        let input = "0 == 0";
+        let tokenizer = Tokenizer::new(input.to_owned());
+        let tokens = tokenizer.tokenize();
+
+        assert_eq!(vec![Token::Num(0), Token::EQ, Token::Num(0)], tokens);
+
+        println!("{:?}", tokens);
+    }
+
+    #[test]
+    fn test_NE() {
+        let input = "1 != 0";
+        let tokenizer = Tokenizer::new(input.to_owned());
+        let tokens = tokenizer.tokenize();
+
+        assert_eq!(vec![Token::Num(0), Token::NE, Token::Num(0)], tokens);
+
+        println!("{:?}", tokens);
+    }
+
+    #[test]
+    fn test_LE() {
+        let input = "1 >= 0";
+        let tokenizer = Tokenizer::new(input.to_owned());
+        let tokens = tokenizer.tokenize();
+
+        assert_eq!(vec![Token::Num(1), Token::LE, Token::Num(0)], tokens);
+
+        println!("{:?}", tokens);
+    }
+
+    #[test]
+    fn test_LT() {
+        let input = "1 > 0";
+        let tokenizer = Tokenizer::new(input.to_owned());
+        let tokens = tokenizer.tokenize();
+
+        assert_eq!(vec![Token::Num(1), Token::LT, Token::Num(0)], tokens);
+
+        println!("{:?}", tokens);
     }
 }

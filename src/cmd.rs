@@ -55,17 +55,21 @@ pub fn run(target: &str) -> anyhow::Result<usize> {
 }
 
 pub fn run_assembly(target: &str) -> anyhow::Result<usize> {
-    let bin = target.split('.').collect::<Vec<&str>>().into_iter().next().unwrap();
+    let bin = target
+        .split('.')
+        .collect::<Vec<&str>>()
+        .into_iter()
+        .next()
+        .unwrap();
     println!("{bin}");
     assemble(target, bin).map_err(|e| anyhow!("assemble error in run_assembly {e:#?}"))?;
     run(bin).map_err(|e| anyhow!("run error in run_assembly {e:#?}"))
 }
 
-
 #[cfg(test)]
 mod tests {
-    use crate::parser::Parser;
     use crate::cmd;
+    use crate::parser::Parser;
 
     use std::{
         io::{self, Write},
@@ -89,7 +93,7 @@ mod tests {
     }
 
     #[test]
-    fn assemble_test() -> anyhow::Result<()>  {
+    fn assemble_test() -> anyhow::Result<()> {
         assemble("tmp.s", "tmp")?;
         cat("tmp.s")
     }

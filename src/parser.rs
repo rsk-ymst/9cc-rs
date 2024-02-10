@@ -1,6 +1,9 @@
 use std::{borrow::Borrow, iter::Peekable, slice::Iter, vec::IntoIter};
 
-use crate::{tokenizer::{Operator, Token}, opx_node};
+use crate::{
+    opx_node,
+    tokenizer::{Token},
+};
 use anyhow::{anyhow, Result};
 use thiserror::Error;
 
@@ -42,7 +45,6 @@ pub enum FormatError {
 }
 
 impl Parser<IntoIter<Token>> {
-
     pub fn parse(&mut self) -> OpxNode {
         self.expr()
     }
@@ -50,7 +52,6 @@ impl Parser<IntoIter<Token>> {
     pub fn expr(&mut self) -> OpxNode {
         let mut node = self.mul();
         println!("expr {:?}", node);
-
 
         while let Some(token) = self.peek_token() {
             println!("expr: {token:?}");
@@ -111,7 +112,11 @@ impl Parser<IntoIter<Token>> {
                 }
                 Token::Sub => {
                     self.consume_token();
-                    return opx_node!(Token::Sub, opx_node!(Token::Num(0), None, None), self.unary());
+                    return opx_node!(
+                        Token::Sub,
+                        opx_node!(Token::Num(0), None, None),
+                        self.unary()
+                    );
                 }
                 _ => {
                     return self.primary();
@@ -157,10 +162,9 @@ impl Parser<IntoIter<Token>> {
         if let Some(x) = self.peek_token() {
             if x == &token {
                 self.consume_token();
-                return true
+                return true;
             }
         }
-
         false
     }
 }
@@ -172,15 +176,14 @@ mod macros {
     macro_rules! opx_node {
         ($token:expr, $lhs:expr, $rhs:expr) => {
             Some(Box::new(Node::new($token, $lhs, $rhs)))
-        }
+        };
     }
 }
 
-
 mod tests {
 
-    use crate::{tokenizer::*, opx_node};
     use crate::parser::{Node, Parser};
+    use crate::{opx_node, tokenizer::*};
 
     #[test]
     fn node_test() {

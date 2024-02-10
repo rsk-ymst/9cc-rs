@@ -2,12 +2,12 @@ use std::{env::args, fs::File, io::Write, process::exit, vec};
 
 static FILE_NAME: &str = "tmp.s";
 
+mod cmd;
+mod file;
+mod generator;
 mod parser;
 mod tokenizer;
-mod generator;
 mod utils;
-mod file;
-mod cmd;
 
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = args().collect();

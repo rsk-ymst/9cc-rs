@@ -1,13 +1,11 @@
 use std::vec;
 
-
 use crate::parser::{Node, OpxNode, Parser};
 use crate::tokenizer::{Token, Tokenizer};
 use crate::{cmd, file, utils};
 
-
 pub struct AsmGenerator {
-    asm_line: Vec<String>
+    asm_line: Vec<String>,
 }
 
 impl AsmGenerator {
@@ -17,7 +15,7 @@ impl AsmGenerator {
                 ".intel_syntax noprefix".into(),
                 ".globl main".into(),
                 "main:".into(),
-            ]
+            ],
         }
     }
 
@@ -32,7 +30,7 @@ impl AsmGenerator {
     }
 
     fn gen_helper(&mut self, node: Option<&Box<Node>>) {
-        if let Some(node)  = node {
+        if let Some(node) = node {
             if let Token::Num(x) = node.token {
                 #[cfg(debug_assertion)]
                 println!("  push {}", x);
@@ -51,22 +49,25 @@ impl AsmGenerator {
         match node.unwrap().token {
             Token::Add => {
                 self.asm_line.push(format!("  add rax, rdi"));
-            },
+            }
             Token::Sub => {
                 self.asm_line.push(format!("  sub rax, rdi"));
-            },
+            }
             Token::Mul => {
                 self.asm_line.push(format!("  imul rax, rdi"));
-            },
+            }
             Token::Div => {
                 self.asm_line.push(format!("  cqo"));
                 self.asm_line.push(format!("  idiv rdi"));
-            },
+            }
             Token::Lbr => todo!(),
             Token::Rbr => todo!(),
-            Token::RESERVED(_) => todo!(),
             Token::Num(_) => todo!(),
             Token::EOF => todo!(),
+            Token::EQ => todo!(),
+            Token::NE => todo!(),
+            Token::LT => todo!(),
+            Token::LE => todo!(),
         }
 
         self.asm_line.push(format!("  push rax"));
@@ -97,7 +98,12 @@ pub fn assert_expr_eq(expr: &str, expect: usize) {
 mod tests {
     use anyhow::{Ok, Result};
 
-    use crate::{cmd, file, generator::{run_expr, AsmGenerator}, parser::Parser, tokenizer::Tokenizer};
+    use crate::{
+        cmd, file,
+        generator::{run_expr, AsmGenerator},
+        parser::Parser,
+        tokenizer::Tokenizer,
+    };
 
     use super::assert_expr_eq;
 
