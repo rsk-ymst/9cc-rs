@@ -14,6 +14,7 @@ pub enum Token {
     Num(i32), // 整数トークン
     EOF,      // 入力末端
 }
+
 pub struct Tokenizer {
     pub target: String,
     pub tokens: Vec<Token>,
@@ -119,7 +120,7 @@ impl Tokenizer {
                                 self.tokens.push(Token::NE);
                                 chars.next();
                             }
-                            _ => ()
+                            _ => (),
                         }
                     }
                 }
@@ -179,7 +180,7 @@ mod tests {
         let tokenizer = Tokenizer::new(input.to_owned());
         let tokens = tokenizer.tokenize();
 
-        assert_eq!(vec![Token::Num(0), Token::NE, Token::Num(0)], tokens);
+        assert_eq!(vec![Token::Num(1), Token::NE, Token::Num(0)], tokens);
 
         println!("{:?}", tokens);
     }

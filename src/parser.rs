@@ -1,9 +1,6 @@
 use std::{borrow::Borrow, iter::Peekable, slice::Iter, vec::IntoIter};
 
-use crate::{
-    opx_node,
-    tokenizer::{Token},
-};
+use crate::{opx_node, tokenizer::Token};
 use anyhow::{anyhow, Result};
 use thiserror::Error;
 
@@ -49,21 +46,87 @@ impl Parser<IntoIter<Token>> {
         self.expr()
     }
 
+    // expr = equality
     pub fn expr(&mut self) -> OpxNode {
-        let mut node = self.mul();
-        println!("expr {:?}", node);
+        // let mut node = self.mul();
+        // println!("expr {:?}", node);
+
+        // while let Some(token) = self.peek_token() {
+        //     println!("expr: {token:?}");
+
+        //     match token {
+        //         Token::Add => {
+        //             println!("Add!");
+        //             self.consume_token();
+        //             node = opx_node!(Token::Add, node, self.mul());
+        //         }
+        //         Token::Sub => {
+        //             println!("Sub!");
+        //             self.consume_token();
+        //             node = opx_node!(Token::Sub, node, self.mul());
+        //         }
+        //         _ => {
+        //             return node;
+        //         }
+        //     }
+        // }
+
+        // node
+
+        self.equality()
+    }
+
+    // equality = relational ("==" relational | "!=" relational)*
+    pub fn equality(&mut self) -> OpxNode {
+        let mut node = self.relational();
 
         while let Some(token) = self.peek_token() {
-            println!("expr: {token:?}");
+            match token {
+                Token::EQ | Token::NE => {
+                    let tk = self.consume_token().unwrap();
+                    node = opx_node!(tk, node, self.relational());
+                }
+                _ => {
+                    return node;
+                }
+            }
+        }
+
+        node
+    }
+
+    // relational = add ("<" add | "<=" add | ">" add | ">=" add)*
+    pub fn relational(&mut self) -> OpxNode {
+        let mut node = self.add();
+
+        while let Some(token) = self.peek_token() {
+            match token {
+                Token::LT | Token::LE => {
+                    let tk = self.consume_token().unwrap();
+                    node = opx_node!(tk, node, self.add());
+                }
+                _ => {
+                    return node;
+                }
+            }
+        }
+
+        node
+    }
+
+    // add = mul ("+" mul | "-" mul)*
+    pub fn add(&mut self) -> OpxNode {
+        let mut node = self.mul();
+
+        while let Some(token) = self.peek_token() {
+            // println!("mul: {token:?}");
 
             match token {
                 Token::Add => {
-                    println!("Add!");
                     self.consume_token();
                     node = opx_node!(Token::Add, node, self.mul());
                 }
                 Token::Sub => {
-                    println!("Sub!");
                     self.consume_token();
                     node = opx_node!(Token::Sub, node, self.mul());
                 }
@@ -76,13 +139,11 @@ impl Parser<IntoIter<Token>> {
         node
     }
 
+    // add = mul ("+" mul | "-" mul)*
     fn mul(&mut self) -> OpxNode {
         let mut node = self.unary();
-        println!("mul {:?}", node);
 
         while let Some(token) = self.peek_token() {
-            println!("mul: {token:?}");
-
             match token {
                 Token::Mul => {
                     self.consume_token();
@@ -93,7 +154,7 @@ impl Parser<IntoIter<Token>> {
                     node = opx_node!(Token::Div, node, self.unary());
                 }
                 _ => {
-                    println!("{token:?}");
+                    // println!("{token:?}");
                     return node;
                 }
             }
