@@ -3,3 +3,4 @@ target
 test
 test*
 tmp*
+wget-log

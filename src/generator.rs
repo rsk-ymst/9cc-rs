@@ -68,6 +68,8 @@ impl AsmGenerator {
             Token::NE => todo!(),
             Token::LT => todo!(),
             Token::LE => todo!(),
+            Token::MT => todo!(),
+            Token::ME => todo!(),
         }
 
         self.asm_line.push(format!("  push rax"));

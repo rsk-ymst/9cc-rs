@@ -11,6 +11,8 @@ pub enum Token {
     NE,       // !=
     LT,       // <
     LE,       // <=
+    MT,       // >
+    ME,       // >=
     Num(i32), // 整数トークン
     EOF,      // 入力末端
 }
@@ -96,7 +98,7 @@ impl Tokenizer {
                         }
                     }
                 }
-                '>' => {
+                '<' => {
                     chars.next();
 
                     if let Some(i) = chars.peek() {
@@ -107,6 +109,21 @@ impl Tokenizer {
                             }
                             _ => {
                                 self.tokens.push(Token::LT);
+                            }
+                        }
+                    }
+                }
+                '>' => {
+                    chars.next();
+
+                    if let Some(i) = chars.peek() {
+                        match i {
+                            '=' => {
+                                self.tokens.push(Token::ME);
+                                chars.next();
+                            }
+                            _ => {
+                                self.tokens.push(Token::MT);
                             }
                         }
                     }
@@ -191,7 +208,7 @@ mod tests {
         let tokenizer = Tokenizer::new(input.to_owned());
         let tokens = tokenizer.tokenize();
 
-        assert_eq!(vec![Token::Num(1), Token::LE, Token::Num(0)], tokens);
+        assert_eq!(vec![Token::Num(1), Token::ME, Token::Num(0)], tokens);
 
         println!("{:?}", tokens);
     }
@@ -202,7 +219,7 @@ mod tests {
         let tokenizer = Tokenizer::new(input.to_owned());
         let tokens = tokenizer.tokenize();
 
-        assert_eq!(vec![Token::Num(1), Token::LT, Token::Num(0)], tokens);
+        assert_eq!(vec![Token::Num(1), Token::MT, Token::Num(0)], tokens);
 
         println!("{:?}", tokens);
     }
