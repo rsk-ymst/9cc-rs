@@ -11,8 +11,8 @@ pub enum Token {
     NE,       // !=
     LT,       // <
     LE,       // <=
-    MT,       // >
-    ME,       // >=
+    GT,       // >
+    GE,       // >=
     Num(i32), // 整数トークン
     EOF,      // 入力末端
 }
@@ -119,11 +119,11 @@ impl Tokenizer {
                     if let Some(i) = chars.peek() {
                         match i {
                             '=' => {
-                                self.tokens.push(Token::ME);
+                                self.tokens.push(Token::GE);
                                 chars.next();
                             }
                             _ => {
-                                self.tokens.push(Token::MT);
+                                self.tokens.push(Token::GT);
                             }
                         }
                     }
@@ -177,7 +177,6 @@ mod tests {
         let tokenizer = Tokenizer::new(input.to_owned());
         let tokens = tokenizer.tokenize();
 
-        println!("{:?}", tokens);
     }
 
     #[test]
@@ -187,8 +186,6 @@ mod tests {
         let tokens = tokenizer.tokenize();
 
         assert_eq!(vec![Token::Num(0), Token::EQ, Token::Num(0)], tokens);
-
-        println!("{:?}", tokens);
     }
 
     #[test]
@@ -198,29 +195,40 @@ mod tests {
         let tokens = tokenizer.tokenize();
 
         assert_eq!(vec![Token::Num(1), Token::NE, Token::Num(0)], tokens);
-
-        println!("{:?}", tokens);
     }
 
     #[test]
     fn test_LE() {
-        let input = "1 >= 0";
+        let input = "1 <= 0";
         let tokenizer = Tokenizer::new(input.to_owned());
         let tokens = tokenizer.tokenize();
 
-        assert_eq!(vec![Token::Num(1), Token::ME, Token::Num(0)], tokens);
-
-        println!("{:?}", tokens);
+        assert_eq!(vec![Token::Num(1), Token::LE, Token::Num(0)], tokens);
     }
 
     #[test]
     fn test_LT() {
+        let input = "1 < 0";
+        let tokenizer = Tokenizer::new(input.to_owned());
+        let tokens = tokenizer.tokenize();
+
+        assert_eq!(vec![Token::Num(1), Token::LT, Token::Num(0)], tokens);
+    }
+    #[test]
+    fn test_ME() {
+        let input = "1 >= 0";
+        let tokenizer = Tokenizer::new(input.to_owned());
+        let tokens = tokenizer.tokenize();
+
+        assert_eq!(vec![Token::Num(1), Token::GE, Token::Num(0)], tokens);
+    }
+
+    #[test]
+    fn test_GT() {
         let input = "1 > 0";
         let tokenizer = Tokenizer::new(input.to_owned());
         let tokens = tokenizer.tokenize();
 
-        assert_eq!(vec![Token::Num(1), Token::MT, Token::Num(0)], tokens);
-
-        println!("{:?}", tokens);
+        assert_eq!(vec![Token::Num(1), Token::GT, Token::Num(0)], tokens);
     }
 }

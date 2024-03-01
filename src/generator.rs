@@ -64,12 +64,36 @@ impl AsmGenerator {
             Token::Rbr => todo!(),
             Token::Num(_) => todo!(),
             Token::EOF => todo!(),
-            Token::EQ => todo!(),
-            Token::NE => todo!(),
-            Token::LT => todo!(),
-            Token::LE => todo!(),
-            Token::MT => todo!(),
-            Token::ME => todo!(),
+            Token::EQ => {
+                self.asm_line.push(format!("  cmp rax, rdi"));
+                self.asm_line.push(format!("  sete al"));
+                self.asm_line.push(format!("  movzb rax, al"));
+            },
+            Token::NE => {
+                self.asm_line.push(format!("  cmp rax, rdi"));
+                self.asm_line.push(format!("  setne al"));
+                self.asm_line.push(format!("  movzb rax, al"));
+            },
+            Token::LT => {
+                self.asm_line.push(format!("  cmp rax, rdi"));
+                self.asm_line.push(format!("  setl al"));
+                self.asm_line.push(format!("  movzb rax, al"));
+            },
+            Token::LE => {
+                self.asm_line.push(format!("  cmp rax, rdi"));
+                self.asm_line.push(format!("  setle al"));
+                self.asm_line.push(format!("  movzb rax, al"));
+            },
+            Token::GT => {
+                self.asm_line.push(format!("  cmp rax, rdi"));
+                self.asm_line.push(format!("  setg al"));
+                self.asm_line.push(format!("  movzb rax, al"));
+            },
+            Token::GE => {
+                self.asm_line.push(format!("  cmp rax, rdi"));
+                self.asm_line.push(format!("  setge al"));
+                self.asm_line.push(format!("  movzb rax, al"));
+            },
         }
 
         self.asm_line.push(format!("  push rax"));
@@ -125,5 +149,32 @@ mod tests {
         assert_expr_eq("-10+20", 10);
         assert_expr_eq("- -10", 10);
         assert_expr_eq("- - +10", 10);
+    }
+
+    #[test]
+    pub fn cmp_test() {
+        // assert_expr_eq("-1+2", 1); // 0-1+2
+        assert_expr_eq("0==1", 0);
+        assert_expr_eq("0==0", 1);
+        assert_expr_eq("23==23", 1);
+
+        assert_expr_eq("0!=1", 1);
+        assert_expr_eq("0!=0", 0);
+
+        assert_expr_eq("0 > 1", 0);
+        assert_expr_eq("1 > 0", 1);
+
+        assert_expr_eq("1 >= 0", 1);
+        assert_expr_eq("1 >= 1", 1);
+        assert_expr_eq("1 >= 2", 0);
+
+        assert_expr_eq("0 < 1", 1);
+        assert_expr_eq("1 < 0", 0);
+
+        assert_expr_eq("1 <= 0", 0);
+        assert_expr_eq("1 <= 1", 1);
+        assert_expr_eq("1 <= 2", 1);
+        // assert_expr_eq("- -10", 10);
+        // assert_expr_eq("- - +10", 10);
     }
 }

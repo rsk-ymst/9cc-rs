@@ -101,7 +101,7 @@ impl Parser<IntoIter<Token>> {
 
         while let Some(token) = self.peek_token() {
             match token {
-                Token::LT | Token::LE => {
+                Token::LT | Token::LE | Token::GT | Token::GE => {
                     let tk = self.consume_token().unwrap();
                     node = opx_node!(tk, node, self.add());
                 }
