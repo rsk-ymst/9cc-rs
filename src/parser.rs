@@ -48,31 +48,6 @@ impl Parser<IntoIter<Token>> {
 
     // expr = equality
     pub fn expr(&mut self) -> OpxNode {
-        // let mut node = self.mul();
-        // println!("expr {:?}", node);
-
-        // while let Some(token) = self.peek_token() {
-        //     println!("expr: {token:?}");
-
-        //     match token {
-        //         Token::Add => {
-        //             println!("Add!");
-        //             self.consume_token();
-        //             node = opx_node!(Token::Add, node, self.mul());
-        //         }
-        //         Token::Sub => {
-        //             println!("Sub!");
-        //             self.consume_token();
-        //             node = opx_node!(Token::Sub, node, self.mul());
-        //         }
-        //         _ => {
-        //             return node;
-        //         }
-        //     }
-        // }
-
-        // node
-
         self.equality()
     }
 
@@ -119,16 +94,10 @@ impl Parser<IntoIter<Token>> {
         let mut node = self.mul();
 
         while let Some(token) = self.peek_token() {
-            // println!("mul: {token:?}");
-
             match token {
-                Token::Add => {
-                    self.consume_token();
-                    node = opx_node!(Token::Add, node, self.mul());
-                }
-                Token::Sub => {
-                    self.consume_token();
-                    node = opx_node!(Token::Sub, node, self.mul());
+                Token::Add | Token::Sub => {
+                    let tk = self.consume_token().unwrap();
+                    node = opx_node!(tk, node, self.mul());
                 }
                 _ => {
                     return node;
@@ -145,16 +114,11 @@ impl Parser<IntoIter<Token>> {
 
         while let Some(token) = self.peek_token() {
             match token {
-                Token::Mul => {
-                    self.consume_token();
-                    node = opx_node!(Token::Mul, node, self.unary());
-                }
-                Token::Div => {
-                    self.consume_token();
-                    node = opx_node!(Token::Div, node, self.unary());
+                Token::Mul | Token::Div => {
+                    let tk = self.consume_token().unwrap();
+                    node = opx_node!(tk, node, self.unary());
                 }
                 _ => {
-                    // println!("{token:?}");
                     return node;
                 }
             }

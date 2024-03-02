@@ -134,6 +134,13 @@ mod tests {
     use super::assert_expr_eq;
 
     #[test]
+    fn entry() {
+        expr_test_set();
+        unary_test();
+        cmp_test();
+    }
+
+    #[test]
     pub fn expr_test_set() {
         // cargo test は並行実行されるので、エントリポイントを設け逐次実行させる
         assert_expr_eq("2*3+4*5", 26);
