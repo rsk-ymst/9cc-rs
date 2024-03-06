@@ -1,20 +1,23 @@
 // Rustの列挙子は変数を紐づけることが出来るので、そもそも構造体にする必要がないのでは。
 #[derive(Debug, PartialEq, Clone)]
 pub enum Token {
-    Add,      // +
-    Sub,      // -
-    Mul,      // *
-    Div,      // /
-    Lbr,      // (
-    Rbr,      // )
-    EQ,       // ==
-    NE,       // !=
-    LT,       // <
-    LE,       // <=
-    GT,       // >
-    GE,       // >=
-    Num(i32), // 整数トークン
-    EOF,      // 入力末端
+    Add,          // +
+    Sub,          // -
+    Mul,          // *
+    Div,          // /
+    Lbr,          // (
+    Rbr,          // )
+    Assign,       // =
+    EQ,           // ==
+    NE,           // !=
+    LT,           // <
+    LE,           // <=
+    GT,           // >
+    GE,           // >=
+    Semi,         // ;
+    LVAR(usize),  // ローカル変数
+    Num(i32),     // 整数トークン
+    EOF,          // 入力末端
 }
 
 pub struct Tokenizer {
